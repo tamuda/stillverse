@@ -1,24 +1,19 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { TRANSLATIONS, type TranslationCode } from "@/lib/translations";
+import { type TranslationCode } from "@/lib/translations";
+
+const DEFAULT_TRANSLATION: TranslationCode = "kjv";
 
 export default function LandingPage() {
   const router = useRouter();
   const [reference, setReference] = useState("");
-  const [translation, setTranslation] = useState<TranslationCode>("kjv");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -36,116 +31,106 @@ export default function LandingPage() {
 
     const params = new URLSearchParams({
       reference: trimmedReference,
-      translation,
+      translation: DEFAULT_TRANSLATION,
     });
 
     router.push(`/editor?${params.toString()}`);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#050505] text-white">
-      <main className="flex-1 flex items-center justify-center px-6 py-24">
-        <div className="w-full max-w-3xl space-y-10 text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-white/50">
-            MorningVine
-          </p>
-          <h1 className="font-serif text-4xl md:text-5xl text-balance">
-            A single verse, distilled into quiet visuals.
-          </h1>
-          <p className="text-white/60 text-base md:text-lg max-w-2xl mx-auto">
-            Type a reference, pick your translation, and jump straight into the
-            editor with the verse ready to style.
-          </p>
+    <div className="relative min-h-screen overflow-hidden bg-[#fdfcf8] text-[#0b0b0f]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(236,233,222,0.8),transparent_55%)]" />
+      <div className="relative flex min-h-screen flex-col">
+        <header className="sticky top-0 z-10 border-b border-black/5 bg-white/70 backdrop-blur-xl">
+          <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
+            <Link href="/" className="text-sm font-semibold tracking-tight">
+              MorningVine
+            </Link>
+            <nav className="hidden" aria-hidden="true" />
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                className="hidden md:inline-flex text-black/70"
+              >
+                Log in
+              </Button>
+              <Button asChild className="bg-black text-white hover:bg-black/90">
+                <Link href="/editor">Launch editor</Link>
+              </Button>
+            </div>
+          </div>
+        </header>
 
-          <form
-            onSubmit={handleSearch}
-            className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-6 text-left shadow-2xl shadow-black/40"
-          >
-            <div className="flex flex-col gap-4 md:flex-row">
-              <div className="flex-1 space-y-2">
-                <label
-                  htmlFor="landing-reference"
-                  className="text-xs uppercase tracking-[0.3em] text-white/60"
-                >
-                  Search a verse
-                </label>
-                <Input
-                  id="landing-reference"
-                  placeholder="e.g. Psalm 23:1"
-                  value={reference}
-                  onChange={(event) => setReference(event.target.value)}
-                  className="h-14 rounded-2xl border-white/10 bg-black/30 text-base placeholder:text-white/40 focus-visible:border-white focus-visible:ring-white"
+        <main className="flex-1">
+          <section className="px-6 py-20 md:py-28">
+            <div className="mx-auto max-w-4xl space-y-10 text-center">
+              <div className="space-y-6">
+                <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl md:text-6xl">
+                  Turn God’s Word into Daily Inspiration Content.
+                </h1>
+                <p className="mx-auto max-w-3xl text-base text-black/70 sm:text-lg">
+                  Empowering faith creators to reach millions through engaging,
+                  and nicely designed content. Starting with Bible verses.
+                </p>
+              </div>
+
+              <form onSubmit={handleSearch} className="mx-auto max-w-3xl">
+                <div className="relative">
+                  <Input
+                    id="landing-reference"
+                    placeholder="Search a verse · Psalm 23:1"
+                    value={reference}
+                    onChange={(event) => setReference(event.target.value)}
+                    className="h-16 w-full rounded-[32px] border border-black/10 bg-white/90 pl-8 pr-40 text-base placeholder:text-black/30 focus-visible:border-black/60 focus-visible:ring-0"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="absolute right-1.5 top-1.5 flex h-[52px] min-w-[140px] items-center justify-center gap-2 rounded-[26px] bg-black px-5 text-base text-white hover:bg-black/90"
+                  >
+                    <Search className="h-4 w-4" />
+                    {isSubmitting ? "Starting…" : "Start"}
+                  </Button>
+                </div>
+
+                {error && (
+                  <p className="mt-3 text-sm text-red-500" role="alert">
+                    {error}
+                  </p>
+                )}
+              </form>
+
+              <div className="mx-auto mt-10 w-full max-w-2xl">
+                <Image
+                  src="/hero-image.png"
+                  alt="MorningVine hero"
+                  width={1920}
+                  height={1080}
+                  className="h-auto w-full"
+                  priority
                 />
               </div>
-
-              <div className="md:w-48 space-y-2">
-                <label className="text-xs uppercase tracking-[0.3em] text-white/60">
-                  Translation
-                </label>
-                <Select
-                  value={translation}
-                  onValueChange={(value) =>
-                    setTranslation(value as TranslationCode)
-                  }
-                >
-                  <SelectTrigger className="h-14 rounded-2xl border-white/10 bg-black/30 text-base">
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#0d0d0d] text-white border border-white/10">
-                    {TRANSLATIONS.map((option) => (
-                      <SelectItem key={option.code} value={option.code}>
-                        {option.label} · {option.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
+          </section>
+        </main>
 
-            {error && (
-              <p className="text-sm text-red-300" role="alert">
-                {error}
-              </p>
-            )}
-
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white text-black hover:bg-white/90"
-            >
-              <Search className="h-4 w-4" />
-              {isSubmitting ? "Searching…" : "Search verse"}
-            </Button>
-          </form>
-
-          <div className="text-sm text-white/50">
-            Press ⌘K anytime in the editor to search again.
+        <footer className="border-t border-black/5 bg-white/80 py-6 text-center text-xs text-black/50">
+          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 px-6 sm:flex-row">
+            <p>© MorningVine {new Date().getFullYear()}</p>
+            <div className="flex gap-6">
+              <Link href="/about" className="hover:text-black">
+                About
+              </Link>
+              <Link href="/privacy" className="hover:text-black">
+                Privacy
+              </Link>
+              <Link href="/contact" className="hover:text-black">
+                Contact
+              </Link>
+            </div>
           </div>
-        </div>
-      </main>
-
-      <footer className="border-t border-white/10 py-6 text-center text-xs text-white/40">
-        <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-3 sm:flex-row">
-          <p>© MorningVine {new Date().getFullYear()}</p>
-          <div className="flex gap-6">
-            <Link href="/about" className="hover:text-white transition-colors">
-              About
-            </Link>
-            <Link
-              href="/privacy"
-              className="hover:text-white transition-colors"
-            >
-              Privacy
-            </Link>
-            <Link
-              href="/contact"
-              className="hover:text-white transition-colors"
-            >
-              Contact
-            </Link>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
