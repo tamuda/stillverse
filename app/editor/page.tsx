@@ -1550,7 +1550,11 @@ function EditorPageContent() {
 
 export default function EditorPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-sm text-black/60">Loading editor…</div>}>
+    <Suspense
+      fallback={
+        <div className="p-6 text-sm text-black/60">Loading editor…</div>
+      }
+    >
       <EditorPageContent />
     </Suspense>
   );
